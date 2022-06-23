@@ -1,1 +1,1 @@
-export {default} from './loadFixturesHelper';
+export {default, loadFixtureGlob} from './loadFixturesHelper';

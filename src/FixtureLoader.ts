@@ -19,22 +19,36 @@ const FIXTURE_HASH_PATH = appRoot + "/tmp/fixturesHash";
 
 export class FixtureLoader {
   loadFixtures = async (
-    fixturesPaths: string,
-    dataBaseCache: DatabaseCacheFixtureInterface
-  ) => {
-    const hashFixtures = await this.genHash(fixturesPaths);
+    dataBaseCache: DatabaseCacheFixtureInterface,
+    fixturesPath: string[]
+  ): Promise<void> => {
+    if(fixturesPath && fixturesPath.length > 0) {
+      return fixturesPath.reduce(
+        (previousIteration, singlePath) =>
+           previousIteration.then(_ => this.loadSingleFixturePath(dataBaseCache,singlePath)),
+           Promise.resolve())
+    } else {
+      return Promise.resolve()
+    }
+  };
+    
+  private loadSingleFixturePath = async (
+    dataBaseCache: DatabaseCacheFixtureInterface,
+    fixturesPath: string
+  ): Promise<void> => {
+    const hashFixtures = await this.genHash(fixturesPath);
     if (this.isSameHash(hashFixtures)) {
       await dataBaseCache.purgeData();
       await dataBaseCache.insertData();
       return;
     }
 
-    await this.generateCache(fixturesPaths, dataBaseCache);
+    await this.generateCache(fixturesPath, dataBaseCache);
     await this.saveHashFixtures(hashFixtures);
   };
 
   private generateCache = async (
-    fixturesPaths: string,
+    fixturesPath: string,
     dataBaseCache: DatabaseCacheFixtureInterface
   ): Promise<void> => {
     this.createTmpDir();
@@ -42,7 +56,7 @@ export class FixtureLoader {
     await getConnection().synchronize(true);
 
     const loader = new Loader();
-    loader.load(path.resolve(fixturesPaths));
+    loader.load(path.resolve(fixturesPath));
 
     const resolver = new Resolver();
     const fixtures = resolver.resolve(loader.fixtureConfigs);
@@ -75,8 +89,8 @@ export class FixtureLoader {
     mkdirp.sync(ROOT_TMP);
   };
 
-  private genHash = async (fixturesPaths: string): Promise<string> => {
-    const hashDir = await hashElement(fixturesPaths, {});
+  private genHash = async (fixturesPath: string): Promise<string> => {
+    const hashDir = await hashElement(fixturesPath, {});
     return getConnection().options.type + hashDir.hash;
   };
 

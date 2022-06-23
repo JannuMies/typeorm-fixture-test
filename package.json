@@ -1,6 +1,6 @@
 {
   "name": "typeorm-fixtures-test",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "run test with yaml fixtures",
   "main": "dist/index.js",
   "keywords": [
@@ -53,6 +53,7 @@
     "class-transformer": "^0.3.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "fast-glob": "^3.2.5",
     "folder-hash": "^4.0.0",
     "fs-extra": "^9.1.0",
     "mkdirp": "^1.0.4",
